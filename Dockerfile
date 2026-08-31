@@ -40,10 +40,11 @@ EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
     CMD curl -f http://localhost:${PORT:-8080}/login || exit 1
 
-# Shell form so Railway's injected $PORT is expanded (exec form would pass
-# the literal string). Long worker timeout covers large book downloads.
-CMD gunicorn app:app \
-    --bind 0.0.0.0:${PORT:-8080} \
-    --threads 4 \
-    --timeout 1800 \
-    --graceful-timeout 30
+# Shell form (as above, so $PORT is expanded by the shell). Validates PORT
+# first: falls back to 8080 (with a warning) for an unset, empty, or
+# non-numeric value instead of crashing gunicorn's bind parser. Long worker
+# timeout covers large book downloads.
+CMD case "$PORT" in \
+        ''|*[!0-9]*) echo "WARN: PORT='$PORT' is not numeric, defaulting to 8080" >&2; PORT=8080 ;; \
+    esac; \
+    exec gunicorn app:app --bind 0.0.0.0:$PORT --threads 4 --timeout 1800 --graceful-timeout 30
