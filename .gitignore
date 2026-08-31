@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Runtime state (mounted volume in production)
+data/
+uploads/
+output/
+covers/
+.adept/
+
+# Built dependency
+libgourou/
+
+# Local env
+.env
