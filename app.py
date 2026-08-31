@@ -2,6 +2,7 @@
 """Flask web interface for the ACSM to DRM-free EPUB/PDF converter."""
 
 import os
+import sys
 import threading
 import time
 import traceback
@@ -582,5 +583,8 @@ def debug_status():
 
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8080))
-    app.run(debug=False, host="0.0.0.0", port=port, threaded=True)
+    _port_env = os.environ.get("PORT", "8080")
+    if not _port_env.isdigit():
+        print(f"WARN: PORT='{_port_env}' is not numeric, defaulting to 8080", file=sys.stderr)
+        _port_env = "8080"
+    app.run(debug=False, host="0.0.0.0", port=int(_port_env), threaded=True)
